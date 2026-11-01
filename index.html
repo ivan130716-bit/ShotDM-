@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOT DM | DEATHMATCH & RP PORTAL</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0a0512;
+            --bg-card: rgba(18, 10, 31, 0.75);
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --accent-cyan: #06b6d4;
+            --border-glow: rgba(168, 85, 247, 0.4);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; user-select: none; }
+        body { background-color: var(--bg-main); color: var(--text-main); background-image: radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.15) 0%, transparent 40%), radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.15) 0%, transparent 40%); background-attachment: fixed; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: rgba(10, 5, 18, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-glow); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent-purple) 50%, var(--accent-pink) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-btn { background: transparent; border: none; color: var(--text-muted); font-size: 17px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; }
+        .nav-btn:hover, .nav-btn.active { color: #fff; background: rgba(168, 85, 247, 0.15); box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
+        .user-panel { display: flex; align-items: center; gap: 15px; }
+        .btn-action { background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink)); border: none; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); display: inline-flex; align-items: center; gap: 8px; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(236, 72, 153, 0.6); }
+        .badge-role { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .role-owner { background: linear-gradient(90deg, #eab308, #ec4899); color: #000; box-shadow: 0 0 10px rgba(234, 179, 8, 0.5); }
+        .role-admin { background: #ef4444; color: #fff; }
+        .role-curator { background: #3b82f6; color: #fff; }
+        .role-leader { background: #10b981; color: #fff; }
+        .role-member { background: #6b7280; color: #fff; }
+        .container { max-width: 1250px; margin: 30px auto; padding: 0 20px; width: 100%; flex: 1; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .glass-panel { background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: 14px; padding: 25px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); margin-bottom: 25px; }
+        .hero { text-align: center; padding: 60px 20px; }
+        .hero h1 { font-family: 'Orbitron', sans-serif; font-size: 48px; margin-bottom: 15px; background: linear-gradient(90deg, #fff, var(--accent-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .forum-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+        .forum-cat-list { display: flex; flex-direction: column; gap: 8px; }
+        .forum-cat-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(168, 85, 247, 0.2); padding: 12px 15px; border-radius: 8px; color: var(--text-muted); cursor: pointer; text-align: left; transition: all 0.2s; font-weight: 600; font-size: 15px; }
+        .forum-cat-btn:hover, .forum-cat-btn.active { background: rgba(168, 85, 247, 0.2); color: #fff; border-color: var(--accent-purple); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
+        .topic-card { background: rgba(15, 8, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 18px; margin-bottom: 12px; transition: 0.2s; cursor: pointer; }
+        .topic-card:hover { border-color: var(--accent-purple); transform: translateX(4px); }
+        .topic-card.pinned { border-left: 4px solid #eab308; background: rgba(234, 179, 8, 0.05); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #120a1f; border: 1px solid var(--accent-purple); width: 500px; border-radius: 12px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 16px 0; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; color: #fff; outline: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        th { color: var(--accent-purple); font-family: 'Orbitron', sans-serif; }
+        .check-card { background: rgba(255,255,255,0.03); border: 1px solid var(--accent-purple); padding: 18px; border-radius: 8px; margin-top: 15px; }
+        .reply-box { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 15px; margin-top: 10px; border-left: 3px solid var(--accent-purple); }
+        .status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; font-size: 14px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo" onclick="switchTab('main')"><i class="fa-solid fa-crosshair"></i> SHOT DM</div>
+        <div class="nav-links">
+            <button class="nav-btn active" id="btn-nav-main" onclick="switchTab('main')"><i class="fa-solid fa-house"></i> Главная</button>
+            <button class="nav-btn" id="btn-nav-forum" onclick="switchTab('forum')"><i class="fa-solid fa-comments"></i> Форум GTA 5 RP</button>
+            <button class="nav-btn" id="owner-panel-btn" style="display:none; color: #eab308;" onclick="switchTab('owner')"><i class="fa-solid fa-crown"></i> Панель Владельца</button>
+        </div>
+        <div class="user-panel" id="user-area">
+            <button class="btn-action" onclick="openModal('auth-modal')">Войти / Регистрация</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- ГЛАВНАЯ СТРАНИЦА -->
+        <div id="tab-main" class="tab-content active">
+            <div class="hero glass-panel">
+                <h1>SHOT DM | DEATHMATCH PORTAL</h1>
+                <p style="color: var(--text-muted); font-size: 20px; max-width: 700px; margin: 0 auto 15px auto;">
+                    Официальный портал проекта SHOT DM. Переходите на форум, участвуйте в обсуждениях и подавайте заявки во фракции!
+                </p>
+                <div class="status-badge">
+                    <i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i> Проект временно недоступен
+                </div>
+                <div style="margin-top: 25px; display: flex; justify-content: center; gap: 15px;">
+                    <button class="btn-action" onclick="openModal('server-status-modal')" style="font-size: 18px; padding: 14px 30px; background: linear-gradient(135deg, #ef4444, #ec4899);">
+                        <i class="fa-solid fa-play"></i> Зайти на проект
+                    </button>
+                    <button class="btn-action" onclick="switchTab('forum')" style="font-size: 18px; padding: 14px 30px;">
+                        <i class="fa-solid fa-comments"></i> Перейти на Форум
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ФОРУМ GTA 5 RP -->
+        <div id="tab-forum" class="tab-content">
+            <div class="glass-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <div>
+                        <h2 style="font-family: 'Orbitron';"><i class="fa-solid fa-comments" style="color:var(--accent-pink);"></i> Игровой Форум</h2>
+                        <p style="color: var(--text-muted); font-size: 14px;">Официальные разделы и общение игроков SHOT DM</p>
+                    </div>
+                    <button class="btn-action" onclick="openCreateTopicModal()"><i class="fa-solid fa-plus"></i> Создать Тему</button>
+                </div>
+
+                <div class="forum-grid">
+                    <div class="forum-cat-list">
+                        <div class="forum-cat-btn active" onclick="filterCategory('all', this)"><i class="fa-solid fa-layer-group"></i> Все Разделы</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('news', this)"><i class="fa-solid fa-bullhorn"></i> Новости & Объявления</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('rules', this)"><i class="fa-solid fa-book"></i> Правила Сервера</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('jaloba_player', this)"><i class="fa-solid fa-user-shield"></i> Жалобы на игроков</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('jaloba_admin', this)"><i class="fa-solid fa-gavel"></i> Жалобы на админов</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('amnesty', this)"><i class="fa-solid fa-key"></i> Заявления на Амнистию</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('leaders', this)"><i class="fa-solid fa-star"></i> Заявления на Лидерство</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('factions', this)"><i class="fa-solid fa-users"></i> Фракции & Организации</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('tech', this)"><i class="fa-solid fa-wrench"></i> Технический раздел</div>
+                        <div class="forum-cat-btn" onclick="filterCategory('offtopic', this)"><i class="fa-solid fa-mug-hot"></i> Курилка / Свободное</div>
+                    </div>
+                    <div id="topics-list-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПАНЕЛЬ ВЛАДЕЛЬЦА -->
+        <div id="tab-owner" class="tab-content">
+            <div class="glass-panel">
+                <h2 style="font-family: 'Orbitron'; color: #eab308;"><i class="fa-solid fa-crown"></i> Панель Владельца & Система Чекер</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Управление ролями и мгновенная проверка аккаунтов игроков</p>
+                <div class="check-card">
+                    <h3 style="color: var(--accent-cyan); font-family: 'Orbitron';"><i class="fa-solid fa-magnifying-glass"></i> Быстрый Чекер Игрока</h3>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <input type="text" id="check-search-input" placeholder="Введите никнейм игрока..." style="margin:0;">
+                        <button class="btn-action" onclick="checkUser()">ЧЕКНУТЬ</button>
+                    </div>
+                    <div id="check-results" style="display:none; margin-top:15px; line-height: 1.8;"></div>
+                </div>
+                <h3 style="font-family: 'Orbitron'; margin-top:30px;"><i class="fa-solid fa-users"></i> Зарегистрированные Аккаунты</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Пользователь</th>
+                            <th>Пароль (Чекер)</th>
+                            <th>Фракция</th>
+                            <th>Текущая Роль</th>
+                            <th>Выдать Роль</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА ВХОДА НА ПРОЕКТ -->
+    <div class="modal" id="server-status-modal">
+        <div class="modal-content" style="text-align: center;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 50px; color: #ef4444; margin-bottom: 15px;"></i>
+            <h2 style="font-family:'Orbitron'; margin-bottom: 10px; color: #ef4444;">Проект временно недоступен</h2>
+            <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
+                В данный момент на игровых серверах SHOT DM ведутся технические работы. Очки входа временно закрыты.
+            </p>
+            <button class="btn-action" style="width:100%; justify-content:center;" onclick="closeModal('server-status-modal')">Понятно</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА АВТОРИЗАЦИИ -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <h2 style="font-family:'Orbitron'; margin-bottom: 15px;">Вход / Регистрация</h2>
+            <label>Никнейм</label>
+            <input type="text" id="auth-login" placeholder="Введите никнейм">
+            <label>Пароль</label>
+            <input type="password" id="auth-pass" placeholder="••••••••">
+            <label>Фракция</label>
+            <select id="auth-frac">
+                <option value="Grove Street">Grove Street</option>
+                <option value="Ballas">Ballas</option>
+                <option value="Vagos">Vagos</option>
+                <option value="LSPD">LSPD</option>
+                <option value="FIB">FIB</option>
+            </select>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-action" style="flex:1;" onclick="login()">Войти / Создать</button>
+                <button class="btn-action" style="flex:1; background: #334155;" onclick="closeModal('auth-modal')">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА СОЗДАНИЯ ТЕМЫ -->
+    <div class="modal" id="topic-modal">
+        <div class="modal-content">
+            <h2 style="font-family:'Orbitron'; margin-bottom: 15px;">Создать новую тему</h2>
+            <label>Заголовок темы</label>
+            <input type="text" id="topic-title" placeholder="Введите заголовок...">
+            <label>Раздел форума</label>
+            <select id="topic-category">
+                <option value="jaloba_player">Жалобы на игроков</option>
+                <option value="jaloba_admin">Жалобы на администрацию</option>
+                <option value="amnesty">Заявления на Амнистию</option>
+                <option value="leaders">Заявления на Лидерство</option>
+                <option value="factions">Фракции & Организации</option>
+                <option value="tech">Технический раздел</option>
+                <option value="offtopic">Курилка / Свободное общение</option>
+                <option value="news" id="opt-news" style="display:none;">Новости & Объявления (Только Владелец)</option>
+                <option value="rules" id="opt-rules" style="display:none;">Правила Сервера (Только Владелец)</option>
+            </select>
+            <label>Содержание темы</label>
+            <textarea id="topic-text" rows="5" placeholder="Опишите детально вашу тему..."></textarea>
+            <button class="btn-action" style="width:100%; justify-content:center;" onclick="saveTopic()">Опубликовать</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА ПРОСМОТРА ТЕМЫ -->
+    <div class="modal" id="view-topic-modal">
+        <div class="modal-content" style="width:700px;">
+            <div id="view-topic-content"></div>
+            <div style="margin-top:20px; text-align:right;">
+                <button class="btn-action" style="background:#334155;" onclick="closeModal('view-topic-modal')">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const initialTopics = [
+            { id: 101, title: "📌 [Официально] Открытие регистраций и подготовка к сезону SHOT DM", text: "Приветствуем всех участников! Форум SHOT DM официально запущен. Просим всех игроков ознакомиться с правилами раздела.", author: "Главный Администратор", role: "owner", cat: "news", pinned: true, closed: false, replies: [{ author: "Thomas_Shelby", role: "leader", text: "Отличные новости! Ждём открытия серверов!" }] },
+            { id: 102, title: "📜 Общий свод правил Deathmatch серверов и форума", text: "1. Запрещено использование стороннего ПО (читы/аим).\n2. Оскорбление администрации влечет бан на 30 дней.\n3. Соблюдайте регламент подачи жалоб.", author: "Главный Администратор", role: "owner", cat: "rules", pinned: true, closed: true, replies: [] },
+            { id: 103, title: "🟢 [Открыто] Заявления на пост Лидера Grove Street Gang", text: "Требования: Возраст 16+, знание правил каптов, суточный онлайн от 3-х часов. Форма подачи в теме.", author: "Главный Следящий", role: "curator", cat: "leaders", pinned: true, closed: false, replies: [{ author: "Alexander_Vagos", role: "member", text: "Подал заявку, ожидаю обзвона!" }] },
+            { id: 104, title: "🔴 [Открыто] Заявления на пост Лидера LSPD", text: "Ищем ответственного лидера для структуры LSPD. Опыт работы в гос. структурах обязателен.", author: "Куратор Гос", role: "curator", cat: "leaders", pinned: false, closed: false, replies: [] },
+            { id: 105, title: "Жалоба на игрока #341 | Причина: DBM / Aimbot", text: "Игрок стрелял без промахов сквозь текстуры. Доказательства в виде видеозаписи прикрепляю.", author: "John_Wick", role: "member", cat: "jaloba_player", pinned: false, closed: false, replies: [{ author: "Модератор_01", role: "admin", text: "Жалоба взята на рассмотрение." }] },
+            { id: 106, title: "Заявление на амнистию игрового аккаунта | Ник: Kratos_DM", text: "Осознал свою ошибку, прошу сократить срок блокировки. Больше нарушать не буду.", author: "Kratos_DM", role: "member", cat: "amnesty", pinned: false, closed: false, replies: [] },
+            { id: 107, title: "💡 Предложение: Добавить трассеры пуль для каждого выстрела", text: "Предлагаю добавить визуал трассеров, чтобы лучше видеть траекторию выстрелов на арене.", author: "Shooter_Pro", role: "member", cat: "tech", pinned: false, closed: false, replies: [{ author: "Разработчик", role: "admin", text: "Идея передана в тех. отдел." }] },
+            { id: 108, title: "☕ Курилка: Какое оружие считаете самым сбалансированным?", text: "Делимся мнением: Heavy Rifle или Special Carbine?", author: "Gamer_99", role: "member", cat: "offtopic", pinned: false, closed: false, replies: [] }
+        ];
+
+        let users = JSON.parse(localStorage.getItem('shotdm_final_users')) || [];
+        let topics = JSON.parse(localStorage.getItem('shotdm_final_topics')) || initialTopics;
+        let currentUser = JSON.parse(localStorage.getItem('shotdm_final_curr')) || null;
+        let currentFilter = 'all';
+
+        function saveAll() {
+            localStorage.setItem('shotdm_final_users', JSON.stringify(users));
+            localStorage.setItem('shotdm_final_topics', JSON.stringify(topics));
+            localStorage.setItem('shotdm_final_curr', JSON.stringify(currentUser));
+        }
+
+        function init() { renderUser(); renderTopics(); renderOwnerTable(); }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            if(document.getElementById('btn-nav-' + tab)) document.getElementById('btn-nav-' + tab).classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function login() {
+            const l = document.getElementById('auth-login').value.trim();
+            const p = document.getElementById('auth-pass').value.trim();
+            const f = document.getElementById('auth-frac').value;
+            if(!l || !p) return alert('Заполните логин и пароль!');
+            
+            let u = users.find(x => x.login.toLowerCase() === l.toLowerCase());
+            if(u) {
+                if(u.pass !== p) return alert('Неверный пароль!');
+                u.lastLogin = 'Только что';
+                currentUser = u;
+            } else {
+                const assignedRole = users.length === 0 ? 'owner' : 'member';
+                currentUser = { login: l, pass: p, role: assignedRole, frac: f, gc: 0, lastLogin: 'Только что' };
+                users.push(currentUser);
+            }
+            saveAll();
+            closeModal('auth-modal');
+            renderUser();
+            renderOwnerTable();
+            renderTopics();
+        }
+
+        function renderUser() {
+            const area = document.getElementById('user-area');
+            const ownerBtn = document.getElementById('owner-panel-btn');
+            const optNews = document.getElementById('opt-news');
+            const optRules = document.getElementById('opt-rules');
+
+            if(currentUser) {
+                area.innerHTML = `<span><strong>${currentUser.login}</strong></span><span class="badge-role role-${currentUser.role}">${getRoleName(currentUser.role)}</span><button onclick="logout()" style="background:none; border:none; color:#ef4444; cursor:pointer;" title="Выйти"><i class="fa-solid fa-right-from-bracket"></i></button>`;
+                if(currentUser.role === 'owner') { 
+                    ownerBtn.style.display = 'flex'; 
+                    if(optNews) optNews.style.display = 'block'; 
+                    if(optRules) optRules.style.display = 'block';
+                } else { 
+                    ownerBtn.style.display = 'none'; 
+                    if(optNews) optNews.style.display = 'none'; 
+                    if(optRules) optRules.style.display = 'none';
+                }
+            } else {
+                area.innerHTML = `<button class="btn-action" onclick="openModal('auth-modal')">Войти / Регистрация</button>`;
+                ownerBtn.style.display = 'none';
+                if(optNews) optNews.style.display = 'none'; 
+                if(optRules) optRules.style.display = 'none';
+            }
+        }
+
+        function logout() { currentUser = null; saveAll(); renderUser(); switchTab('main'); renderTopics(); }
+
+        function getRoleName(r) {
+            if(r === 'owner') return 'Владелец';
+            if(r === 'admin') return 'Админ';
+            if(r === 'curator') return 'Куратор';
+            if(r === 'leader') return 'Лидер';
+            return 'Игрок';
+        }
+
+        function filterCategory(cat, el) {
+            currentFilter = cat;
+            document.querySelectorAll('.forum-cat-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            renderTopics();
+        }
+
+        function renderTopics() {
+            const container = document.getElementById('topics-list-container');
+            container.innerHTML = '';
+            
+            let filtered = currentFilter === 'all' ? topics : topics.filter(t => t.cat === currentFilter);
+            filtered.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+            if(filtered.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:40px; background:rgba(0,0,0,0.2); border-radius:10px;">Тем в данном разделе пока нет. Будьте первым, кто создаст тему!</div>';
+                return;
+            }
+
+            filtered.forEach(t => {
+                container.innerHTML += `
+                    <div class="topic-card ${t.pinned ? 'pinned' : ''}" onclick="viewTopic(${t.id})">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <h3 style="font-size:17px; margin-bottom:6px; color:#fff;">
+                                    ${t.pinned ? '<i class="fa-solid fa-thumbtack" style="color:#eab308; margin-right:6px;"></i>' : ''}
+                                    ${t.closed ? '<i class="fa-solid fa-lock" style="color:#ef4444; margin-right:6px;"></i>' : ''}
+                                    ${t.title}
+                                </h3>
+                                <div style="font-size:13px; color:var(--text-muted);">
+                                    Автор: <strong style="color:#fff;">${t.author}</strong> <span class="badge-role role-${t.role}">${getRoleName(t.role)}</span> • Раздел: <span style="color:var(--accent-purple);">${getCatName(t.cat)}</span> • Ответов: ${t.replies ? t.replies.length : 0}
+                                </div>
+                            </div>
+                            ${currentUser && currentUser.role === 'owner' ? `
+                                <div onclick="event.stopPropagation();" style="display:flex; gap:6px;">
+                                    <button onclick="togglePinTopic(${t.id})" style="background:none; border:none; color:#eab308; cursor:pointer;" title="Закрепить/Открепить"><i class="fa-solid fa-thumbtack"></i></button>
+                                    <button onclick="toggleCloseTopic(${t.id})" style="background:none; border:none; color:#3b82f6; cursor:pointer;" title="Закрыть/Открыть"><i class="fa-solid fa-lock"></i></button>
+                                    <button onclick="deleteTopic(${t.id})" style="background:none; border:none; color:#ef4444; cursor:pointer;" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function getCatName(c) {
+            const map = {
+                news: 'Новости & Объявления', rules: 'Правила Сервера', jaloba_player: 'Жалобы на игроков',
+                jaloba_admin: 'Жалобы на админов', amnesty: 'Амнистия', leaders: 'Заявления на Лидерство',
+                factions: 'Фракции & Организации', tech: 'Технический раздел', offtopic: 'Курилка'
+            };
+            return map[c] || 'Раздел';
+        }
+
+        function openCreateTopicModal() {
+            if(!currentUser) return alert('Сначала авторизуйтесь!');
+            openModal('topic-modal');
+        }
+
+        function saveTopic() {
+            const title = document.getElementById('topic-title').value.trim();
+            const cat = document.getElementById('topic-category').value;
+            const text = document.getElementById('topic-text').value.trim();
+            if(!title || !text) return alert('Заполните заголовок и текст темы!');
+            
+            topics.push({ id: Date.now(), title, text, author: currentUser.login, role: currentUser.role, cat, pinned: false, closed: false, replies: [] });
+            saveAll(); renderTopics(); closeModal('topic-modal');
+            document.getElementById('topic-title').value = '';
+            document.getElementById('topic-text').value = '';
+        }
+
+        function viewTopic(id) {
+            const t = topics.find(x => x.id === id);
+            if(!t) return;
+            const content = document.getElementById('view-topic-content');
+            
+            let repliesHtml = '';
+            if(t.replies && t.replies.length > 0) {
+                t.replies.forEach(r => {
+                    repliesHtml += `
+                        <div class="reply-box">
+                            <div style="font-size:13px; color:var(--text-muted); margin-bottom:6px;">
+                                <strong style="color:#fff;">${r.author}</strong> <span class="badge-role role-${r.role}">${getRoleName(r.role)}</span>
+                            </div>
+                            <div style="font-size:15px; color:#f3f4f6;">${r.text}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            content.innerHTML = `
+                <h2 style="font-family:'Orbitron'; margin-bottom:10px;">${t.title}</h2>
+                <div style="font-size:13px; color:var(--text-muted); margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                    Автор: <strong style="color:#fff;">${t.author}</strong> <span class="badge-role role-${t.role}">${getRoleName(t.role)}</span>
+                </div>
+                <div style="font-size:16px; line-height:1.6; background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; margin-bottom:20px;">
+                    ${t.text}
+                </div>
+                <h3 style="font-family:'Orbitron'; font-size:16px; margin-bottom:10px;">Ответы (${t.replies ? t.replies.length : 0})</h3>
+                <div style="max-height:200px; overflow-y:auto; margin-bottom:15px;">${repliesHtml || '<div style="color:var(--text-muted);">Ответов пока нет.</div>'}</div>
+                ${!t.closed ? `
+                    ${currentUser ? `
+                        <textarea id="reply-input-${t.id}" rows="3" placeholder="Написать ответ..."></textarea>
+                        <button class="btn-action" onclick="addReply(${t.id})">Ответить</button>
+                    ` : '<div style="color:var(--text-muted);">Авторизуйтесь, чтобы оставить ответ.</div>'}
+                ` : '<div style="color:#ef4444; font-weight:bold;">Тема закрыта для новых ответов.</div>'}
+            `;
+            openModal('view-topic-modal');
+        }
+
+        function addReply(id) {
+            const input = document.getElementById(`reply-input-${id}`);
+            const text = input.value.trim();
+            if(!text) return;
+            let t = topics.find(x => x.id === id);
+            if(t) {
+                if(!t.replies) t.replies = [];
+                t.replies.push({ author: currentUser.login, role: currentUser.role, text });
+                saveAll(); renderTopics(); viewTopic(id);
+            }
+        }
+
+        function togglePinTopic(id) { let t = topics.find(x => x.id === id); if(t) { t.pinned = !t.pinned; saveAll(); renderTopics(); } }
+        function toggleCloseTopic(id) { let t = topics.find(x => x.id === id); if(t) { t.closed = !t.closed; saveAll(); renderTopics(); } }
+        function deleteTopic(id) { topics = topics.filter(x => x.id !== id); saveAll(); renderTopics(); }
+
+        function renderOwnerTable() {
+            const tbody = document.getElementById('users-table');
+            tbody.innerHTML = '';
+            if(users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="color: var(--text-muted); text-align: center;">База аккаунтов пуста. Зарегистрируйте первый аккаунт.</td></tr>';
+                return;
+            }
+            users.forEach(u => {
+                tbody.innerHTML += `<tr><td><strong>${u.login}</strong></td><td style="color:#ec4899; font-family:monospace;">${u.pass}</td><td>${u.frac}</td><td><span class="badge-role role-${u.role}">${getRoleName(u.role)}</span></td><td><select onchange="changeRole('${u.login}', this.value)" style="margin:0; padding:4px;"><option value="member" ${u.role==='member'?'selected':''}>Игрок</option><option value="leader" ${u.role==='leader'?'selected':''}>Лидер</option><option value="curator" ${u.role==='curator'?'selected':''}>Куратор</option><option value="admin" ${u.role==='admin'?'selected':''}>Админ</option><option value="owner" ${u.role==='owner'?'selected':''}>Владелец</option></select></td></tr>`;
+            });
+        }
+
+        function changeRole(login, newRole) {
+            let u = users.find(x => x.login === login);
+            if(u) { u.role = newRole; saveAll(); renderTopics(); renderUser(); renderOwnerTable(); }
+        }
+
+        function checkUser() {
+            const nick = document.getElementById('check-search-input').value.trim();
+            const res = document.getElementById('check-results');
+            const u = users.find(x => x.login.toLowerCase() === nick.toLowerCase());
+            if(!u) { res.style.display = 'block'; res.innerHTML = `<span style="color:#ef4444;">Игрок "${nick}" не найден!</span>`; return; }
+            res.style.display = 'block';
+            res.innerHTML = `<div>🔍 <strong>Данные игрока: ${u.login}</strong></div><div>🔑 Пароль: <span style="color:#ec4899; font-family:monospace;">${u.pass}</span></div><div>👑 Роль: <span class="badge-role role-${u.role}">${getRoleName(u.role)}</span></div><div>⚔️ Фракция: ${u.frac}</div><div>🕒 Последний вход: ${u.lastLogin || 'Неизвестно'}</div>`;
+        }
+
+        init();
+    </script>
+</body>
+</html>
